@@ -47,12 +47,18 @@ async fn register(
     }
   };
 
-  let user = user
-    .into_active_model()
-    .set_email_verification_sent(&ctx.db)
-    .await?;
+  // Skip email verification, all new registrations are considered verified
+  let _user = user.into_active_model().verified(&ctx.db).await?;
 
-  AuthMailer::send_welcome(&ctx, &user).await?;
+  // Skip sending verification email as we don't have a mail server
+  /*
+   let user = user
+       .into_active_model()
+       .set_email_verification_sent(&ctx.db)
+       .await?;
+
+   AuthMailer::send_welcome(&ctx, &user).await?;
+  */
 
   format::json(())
 }
